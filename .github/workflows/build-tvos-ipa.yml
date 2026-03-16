@@ -1,0 +1,61 @@
+name: Build tvOS IPA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-tvos:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build (tvOS)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          DERIVED_DATA="${RUNNER_TEMP}/DerivedData"
+          LOG_PATH="${RUNNER_TEMP}/xcodebuild.log"
+
+          xcodebuild \
+            -workspace AngelLive.xcworkspace \
+            -scheme "AngelLiveTVOS" \
+            -configuration Release \
+            -sdk appletvos \
+            -destination "generic/platform=tvOS" \
+            -derivedDataPath "${DERIVED_DATA}" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build | tee "${LOG_PATH}"
+
+          APP_PATH="$(find "${DERIVED_DATA}/Build/Products" -maxdepth 3 -type d -name "AngelLiveTVOS.app" | head -n 1)"
+          if [[ -z "${APP_PATH}" ]]; then
+            echo "Failed to locate built AngelLiveTVOS.app under ${DERIVED_DATA}/Build/Products"
+            exit 1
+          fi
+
+          mkdir -p "${RUNNER_TEMP}/ipa/Payload"
+          cp -R "${APP_PATH}" "${RUNNER_TEMP}/ipa/Payload/"
+          (cd "${RUNNER_TEMP}/ipa" && zip -qry "${GITHUB_WORKSPACE}/AngelLiveTVOS.ipa" Payload)
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: AngelLiveTVOS.ipa
+          path: AngelLiveTVOS.ipa
+
+      - name: Upload Build Log
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild.log
+          path: ${{ runner.temp }}/xcodebuild.log
+
