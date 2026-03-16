@@ -207,6 +207,7 @@ private final class KSVLCBackend: NSObject {
     }
 
     #if os(iOS) || os(tvOS)
+    @MainActor
     var contentMode: UIView.ContentMode {
         get { view.contentMode }
         set { view.contentMode = newValue }
