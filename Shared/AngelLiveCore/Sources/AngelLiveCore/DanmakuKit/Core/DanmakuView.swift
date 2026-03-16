@@ -214,7 +214,7 @@ public class DanmakuView: DanmakuBaseView {
         super.init(coder: coder)
     }
     
-    @MainActor deinit {
+    deinit {
         stop()
     }
     
