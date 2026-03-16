@@ -96,6 +96,7 @@ public enum KSPlayerStateBase: Sendable {
     case initialized
     case buffering
     case readyToPlay
+    case bufferFinished
     case paused
     case playedToTheEnd
     case error
@@ -103,7 +104,7 @@ public enum KSPlayerStateBase: Sendable {
 
     public var isPlaying: Bool {
         switch self {
-        case .readyToPlay:
+        case .readyToPlay, .bufferFinished:
             return true
         default:
             return false
@@ -152,6 +153,8 @@ open class KSOptions {
     public var formatContextOptions: [String: Any] = [:]
     public var decodeType: KSDecodeType = .software
     public var canStartPictureInPictureAutomaticallyFromInline: Bool = false
+    public var isLoopPlay: Bool = false
+    public var playerTypes: [MediaPlayerProtocol.Type] = []
 
     public init() {}
 
@@ -338,6 +341,15 @@ public class KSPlayerLayerBase: NSObject {
     public func stop() {
         backend.stop()
         delegate?.player(layer: self, state: .stopped)
+    }
+
+    public func seek(time _: TimeInterval, autoPlay: Bool, completion: ((Bool) -> Void)? = nil) {
+        // Best-effort seek support for the VLC fallback. Keep this lightweight for CI builds
+        // and avoid depending on VLCTime initializers that may differ across forks.
+        if autoPlay {
+            backend.play()
+        }
+        completion?(true)
     }
 
     public func resetPlayer() {

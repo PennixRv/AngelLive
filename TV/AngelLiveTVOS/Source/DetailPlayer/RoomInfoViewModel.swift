@@ -577,7 +577,9 @@ extension RoomInfoViewModel: KSPlayerLayerDelegate {
             let errorMsg = error.localizedDescription
             // 检测流断开相关错误，可能是主播下播
             if errorMsg.contains("avformat can't open input") || errorMsg.contains("timed out") || errorMsg.contains("Operation timed out") {
-                checkLiveStatusOnError(error: error)
+                Task { @MainActor in
+                    self.checkLiveStatusOnError(error: error)
+                }
             } else {
                 hasError = true
                 currentError = error

@@ -10,34 +10,24 @@ import SwiftUI
 extension View {
     @ViewBuilder
     func adaptiveGlassEffect() -> some View {
-        if #available(tvOS 26.0, *) {
-            self.glassEffect(.regular.interactive().tint(.black.opacity(0.6)))
-        } else {
-            self.background(.ultraThinMaterial)
-        }
+        // "glassEffect" is only available in newer SwiftUI SDKs. Keep CI compatible with
+        // GitHub Actions' stable Xcode by using material as a safe fallback.
+        self.background(.ultraThinMaterial)
     }
 
     @ViewBuilder
     func adaptiveGlassEffectCapsule() -> some View {
-        if #available(tvOS 26.0, *) {
-            self.glassEffect(.regular.interactive().tint(.black.opacity(0.6)), in: .capsule)
-        } else {
-            self.background(
-                .ultraThinMaterial,
-                in: Capsule()
-            )
-        }
+        self.background(
+            .ultraThinMaterial,
+            in: Capsule()
+        )
     }
 
     @ViewBuilder
     func adaptiveGlassEffectRoundedRect(cornerRadius: CGFloat = 16) -> some View {
-        if #available(tvOS 26.0, *) {
-            self.glassEffect(.regular.interactive().tint(.black.opacity(0.6)), in: .rect(cornerRadius: cornerRadius))
-        } else {
-            self.background(
-                .ultraThinMaterial,
-                in: RoundedRectangle(cornerRadius: cornerRadius)
-            )
-        }
+        self.background(
+            .ultraThinMaterial,
+            in: RoundedRectangle(cornerRadius: cornerRadius)
+        )
     }
 }

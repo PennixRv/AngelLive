@@ -6,7 +6,8 @@ import PackageDescription
 /// 通过环境变量 `USE_VLC=1` 切换播放器内核。
 /// 默认使用 KSPlayer；设置 USE_VLC=1 后改用 VLCKit。
 /// 两者不能同时引入，否则内嵌的 FFmpeg 符号会冲突。
-private let useVLC = ProcessInfo.processInfo.environment["USE_VLC"] == "1"
+private let isCI = ProcessInfo.processInfo.environment["GITHUB_ACTIONS"] == "true"
+private let useVLC = isCI || ProcessInfo.processInfo.environment["USE_VLC"] == "1"
 
 private func resolveKSPlayerDependency() -> (package: Package.Dependency, target: Target.Dependency)? {
     guard !useVLC else { return nil }
