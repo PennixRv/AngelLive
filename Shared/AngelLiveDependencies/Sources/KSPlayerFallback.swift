@@ -388,6 +388,7 @@ public final class KSCompatPlayer {
     public var dynamicInfo: DynamicInfo { backend.dynamicInfo }
 
     #if os(iOS) || os(tvOS)
+    @MainActor
     public var contentMode: UIView.ContentMode {
         get { backend.contentMode }
         set { backend.contentMode = newValue }
