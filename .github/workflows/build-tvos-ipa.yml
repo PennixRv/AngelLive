@@ -22,6 +22,9 @@ jobs:
         run: |
           set -euo pipefail
 
+          # KSPlayer upstream repo is no longer publicly accessible. Use VLCKit backend for CI builds.
+          export USE_VLC=1
+
           DERIVED_DATA="${RUNNER_TEMP}/DerivedData"
           LOG_PATH="${RUNNER_TEMP}/xcodebuild.log"
 
@@ -58,4 +61,3 @@ jobs:
         with:
           name: xcodebuild.log
           path: ${{ runner.temp }}/xcodebuild.log
-
