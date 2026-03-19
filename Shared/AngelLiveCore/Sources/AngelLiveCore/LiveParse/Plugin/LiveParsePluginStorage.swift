@@ -3,6 +3,10 @@ import Foundation
 public struct LiveParsePluginStorage: Sendable {
     public let baseDirectory: URL
 
+    private init(uncheckedBaseDirectory: URL) {
+        self.baseDirectory = uncheckedBaseDirectory
+    }
+
     public init(baseDirectory: URL? = nil) throws {
         if let baseDirectory {
             self.baseDirectory = baseDirectory
@@ -63,5 +67,8 @@ public struct LiveParsePluginStorage: Sendable {
         }
         return urls.filter { $0.hasDirectoryPath }
     }
-}
 
+    static func unchecked(baseDirectory: URL) -> LiveParsePluginStorage {
+        LiveParsePluginStorage(uncheckedBaseDirectory: baseDirectory)
+    }
+}

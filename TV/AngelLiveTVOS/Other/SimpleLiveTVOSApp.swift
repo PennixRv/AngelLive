@@ -12,6 +12,7 @@ import TipKit
 
 @main
 struct SimpleLiveTVOSApp: App {
+    private static let bugsnagPlaceholderAPIKey = "YOUR_BUGSNAG_API_KEY_HERE"
 
     var appViewModel = AppState()
 
@@ -20,7 +21,7 @@ struct SimpleLiveTVOSApp: App {
             .processor(WebPProcessor.default),
             .cacheSerializer(WebPSerializer.default)
         ]
-        Bugsnag.start()
+        Self.startBugsnagIfConfigured()
 
         // 配置 TipKit
         try? Tips.configure([
@@ -51,5 +52,23 @@ struct SimpleLiveTVOSApp: App {
                     DeepLinkPlayerView(appViewModel: appViewModel)
                 }
         }
+    }
+
+    private static func startBugsnagIfConfigured() {
+        guard
+            let bugsnag = Bundle.main.object(forInfoDictionaryKey: "bugsnag") as? [String: Any],
+            let apiKey = bugsnag["apiKey"] as? String
+        else {
+            print("[Startup] Bugsnag config missing; skipping startup.")
+            return
+        }
+
+        let trimmedAPIKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedAPIKey.isEmpty, trimmedAPIKey != bugsnagPlaceholderAPIKey else {
+            print("[Startup] Bugsnag API key is empty or placeholder; skipping startup.")
+            return
+        }
+
+        Bugsnag.start()
     }
 }
