@@ -266,7 +266,12 @@ public final class BilibiliCookieSyncService: ObservableObject {
         guard let encoded = try? JSONEncoder().encode(syncData) else { return }
 
         Task {
-            let container = CKContainer(identifier: CloudCookieFields.containerIdentifier)
+            guard let container = CloudKitContainerResolver.defaultContainer(
+                matching: CloudCookieFields.containerIdentifier,
+                category: .general
+            ) else {
+                return
+            }
             let database = container.privateCloudDatabase
             let recordID = CKRecord.ID(recordName: CloudCookieFields.bilibiliRecordName)
 
@@ -292,7 +297,12 @@ public final class BilibiliCookieSyncService: ObservableObject {
 
     /// 从 CloudKit 获取 Cookie
     public func fetchFromICloud() async -> SyncedCookieData? {
-        let container = CKContainer(identifier: CloudCookieFields.containerIdentifier)
+        guard let container = CloudKitContainerResolver.defaultContainer(
+            matching: CloudCookieFields.containerIdentifier,
+            category: .general
+        ) else {
+            return nil
+        }
         let database = container.privateCloudDatabase
         let recordID = CKRecord.ID(recordName: CloudCookieFields.bilibiliRecordName)
 
@@ -672,7 +682,12 @@ public final class BilibiliCookieSyncService: ObservableObject {
 
     private func clearICloudCookie() {
         Task {
-            let container = CKContainer(identifier: CloudCookieFields.containerIdentifier)
+            guard let container = CloudKitContainerResolver.defaultContainer(
+                matching: CloudCookieFields.containerIdentifier,
+                category: .general
+            ) else {
+                return
+            }
             let database = container.privateCloudDatabase
             let recordID = CKRecord.ID(recordName: CloudCookieFields.bilibiliRecordName)
             do {
@@ -689,7 +704,12 @@ public final class BilibiliCookieSyncService: ObservableObject {
     private func clearAllPlatformICloudSessions() {
         let platformIds: [PlatformSessionID] = [.bilibili, .douyin, .kuaishou, .soop]
         Task {
-            let container = CKContainer(identifier: CloudCookieFields.containerIdentifier)
+            guard let container = CloudKitContainerResolver.defaultContainer(
+                matching: CloudCookieFields.containerIdentifier,
+                category: .general
+            ) else {
+                return
+            }
             let database = container.privateCloudDatabase
             for platformId in platformIds {
                 let recordName = CloudCookieFields.sessionRecordName(for: platformId.rawValue)
@@ -824,7 +844,12 @@ extension BilibiliCookieSyncService {
             result[platformId] = session
         }
 
-        let container = CKContainer(identifier: CloudCookieFields.containerIdentifier)
+        guard let container = CloudKitContainerResolver.defaultContainer(
+            matching: CloudCookieFields.containerIdentifier,
+            category: .general
+        ) else {
+            return
+        }
         let database = container.privateCloudDatabase
 
         let platformIds: [PlatformSessionID] = [.bilibili, .douyin, .kuaishou, .soop]
@@ -864,7 +889,12 @@ extension BilibiliCookieSyncService {
 
     /// 从 CloudKit 同步所有平台
     public func syncAllPlatformsFromICloud() async {
-        let container = CKContainer(identifier: CloudCookieFields.containerIdentifier)
+        guard let container = CloudKitContainerResolver.defaultContainer(
+            matching: CloudCookieFields.containerIdentifier,
+            category: .general
+        ) else {
+            return
+        }
         let database = container.privateCloudDatabase
 
         let platformIds: [PlatformSessionID] = [.douyin, .kuaishou, .soop]
